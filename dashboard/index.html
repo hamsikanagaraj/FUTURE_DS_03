@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marketing Funnel & Conversion Performance Analytics | Future Interns Task 3</title>
+  <meta name="description" content="Executive marketing and lead conversion performance dashboard. Interactive funnel drop-off analysis, multi-channel attribution, unit economics, and revenue simulation.">
+  
+  <!-- Modern Typography: Plus Jakarta Sans & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons & Local Chart.js with CDN fallback -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="chart.umd.min.js"></script>
+  <script>
+    if (typeof Chart === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>');
+    }
+  </script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Navigation / Executive Header -->
+    <header class="executive-header">
+      <div class="header-brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-filter-circle-dollar"></i>
+        </div>
+        <div class="brand-text">
+          <div class="brand-badge"><i class="fa-solid fa-bolt"></i> FUTURE INTERNS • TASK 3 (2026)</div>
+          <h1>Marketing Funnel & Conversion Analytics</h1>
+          <p class="subtitle">Multi-Channel Lead Progression, Stage Drop-Off Diagnostics & Revenue Attribution</p>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <div class="live-status">
+          <span class="status-dot"></span>
+          <span>Pipeline Active • Q1-Q3 2026</span>
+        </div>
+        <button id="themeToggleBtn" class="btn-icon" title="Toggle Theme" aria-label="Toggle Theme">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <button id="exportCsvBtn" class="btn-secondary" title="Export Cleaned Dataset">
+          <i class="fa-solid fa-file-csv"></i> Export CSV
+        </button>
+        <button id="printReportBtn" class="btn-primary" title="Print Executive Brief">
+          <i class="fa-solid fa-print"></i> Executive Report
+        </button>
+      </div>
+    </header>
+
+    <!-- Global Interactive Filter Bar -->
+    <section class="filter-panel glass-card">
+      <div class="filter-group">
+        <label for="channelFilter"><i class="fa-solid fa-bullhorn"></i> Acquisition Channel</label>
+        <select id="channelFilter" class="custom-select">
+          <option value="ALL">All Channels (Blended)</option>
+          <option value="Referral / Partner">Referral / Partner (High ROI)</option>
+          <option value="LinkedIn Ads (B2B)">LinkedIn Ads (High ACV)</option>
+          <option value="Email Marketing">Email Marketing (Warm Nurture)</option>
+          <option value="Organic Search">Organic Search (Inbound SEO)</option>
+          <option value="Paid Search (Google Ads)">Paid Search (Google Ads)</option>
+          <option value="Direct Traffic">Direct Traffic (Brand)</option>
+          <option value="Social Media (Meta/X)">Social Media (Meta / X)</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="deviceFilter"><i class="fa-solid fa-laptop"></i> Device Platform</label>
+        <select id="deviceFilter" class="custom-select">
+          <option value="ALL">All Devices</option>
+          <option value="Desktop">Desktop</option>
+          <option value="Mobile">Mobile</option>
+          <option value="Tablet">Tablet</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="quarterFilter"><i class="fa-regular fa-calendar"></i> Timeframe</label>
+        <select id="quarterFilter" class="custom-select">
+          <option value="ALL">Full Period (Jan - Sep 2026)</option>
+          <option value="Q1">Q1 2026 (Jan - Mar)</option>
+          <option value="Q2">Q2 2026 (Apr - Jun)</option>
+          <option value="Q3">Q3 2026 (Jul - Sep)</option>
+        </select>
+      </div>
+
+      <div class="filter-reset">
+        <button id="resetFiltersBtn" class="btn-ghost" title="Reset all filters">
+          <i class="fa-solid fa-rotate-left"></i> Reset Filters
+        </button>
+      </div>
+    </section>
+
+    <!-- Executive KPI Summary Cards -->
+    <section class="kpi-grid">
+      <div class="kpi-card glass-card" id="cardVisitors">
+        <div class="kpi-top">
+          <span class="kpi-label">Total Traffic Sessions</span>
+          <div class="kpi-icon icon-blue"><i class="fa-solid fa-users"></i></div>
+        </div>
+        <div class="kpi-value" id="kpiVisitors">65,000</div>
+        <div class="kpi-footer">
+          <span class="trend-badge positive"><i class="fa-solid fa-arrow-trend-up"></i> +18.4% MoM</span>
+          <span class="kpi-subtext">Unique inbound visitors</span>
+        </div>
+      </div>
+
+      <div class="kpi-card glass-card" id="cardLeads">
+        <div class="kpi-top">
+          <span class="kpi-label">Qualified Leads (MQL+SQL)</span>
+          <div class="kpi-icon icon-purple"><i class="fa-solid fa-filter"></i></div>
+        </div>
+        <div class="kpi-value" id="kpiLeads">4,466</div>
+        <div class="kpi-footer">
+          <span class="rate-badge" id="kpiTrafficToLead">6.87% Conv Rate</span>
+          <span class="kpi-subtext">Traffic → Lead conversion</span>
+        </div>
+      </div>
+
+      <div class="kpi-card glass-card" id="cardCustomers">
+        <div class="kpi-top">
+          <span class="kpi-label">Closed-Won Customers</span>
+          <div class="kpi-icon icon-green"><i class="fa-solid fa-handshake-simple"></i></div>
+        </div>
+        <div class="kpi-value" id="kpiCustomers">363</div>
+        <div class="kpi-footer">
+          <span class="rate-badge green" id="kpiLeadToCust">8.13% Lead-to-Cust</span>
+          <span class="kpi-subtext">0.558% overall conversion</span>
+        </div>
+      </div>
+
+      <div class="kpi-card glass-card" id="cardRevenue">
+        <div class="kpi-top">
+          <span class="kpi-label">Total Closed ARR</span>
+          <div class="kpi-icon icon-emerald"><i class="fa-solid fa-sack-dollar"></i></div>
+        </div>
+        <div class="kpi-value" id="kpiRevenue">$6,978,674</div>
+        <div class="kpi-footer">
+          <span class="kpi-stat" id="kpiAvgDeal">Avg ACV: $19,225</span>
+          <span class="kpi-subtext">Contracted revenue</span>
+        </div>
+      </div>
+
+      <div class="kpi-card glass-card" id="cardCAC">
+        <div class="kpi-top">
+          <span class="kpi-label">Blended CAC</span>
+          <div class="kpi-icon icon-amber"><i class="fa-solid fa-tags"></i></div>
+        </div>
+        <div class="kpi-value" id="kpiCAC">$502.39</div>
+        <div class="kpi-footer">
+          <span class="kpi-stat" id="kpiCPL">Cost / Lead: $40.83</span>
+          <span class="kpi-subtext">Acquisition efficiency</span>
+        </div>
+      </div>
+
+      <div class="kpi-card glass-card" id="cardROAS">
+        <div class="kpi-top">
+          <span class="kpi-label">Return on Ad Spend (ROAS)</span>
+          <div class="kpi-icon icon-rose"><i class="fa-solid fa-chart-line-up"></i></div>
+        </div>
+        <div class="kpi-value" id="kpiROAS">38.27x</div>
+        <div class="kpi-footer">
+          <span class="kpi-stat" id="kpiSpend">Total Spend: $182.4k</span>
+          <span class="kpi-subtext">Net Pipeline Yield</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Visual Interactive Funnel Waterfall Section -->
+    <section class="funnel-section glass-card">
+      <div class="section-header">
+        <div>
+          <h2><i class="fa-solid fa-layer-group"></i> End-to-End Funnel Waterfall & Stage Drop-Off</h2>
+          <p class="section-desc">Interactive visualization of prospect progression from raw traffic to signed revenue customers.</p>
+        </div>
+        <div class="funnel-legend">
+          <span class="legend-item"><span class="badge-dot dot-active"></span> Stage Volume</span>
+          <span class="legend-item"><span class="badge-dot dot-drop"></span> Drop-Off / Friction</span>
+        </div>
+      </div>
+
+      <!-- Dynamic Funnel Visualizer Rows -->
+      <div class="funnel-container" id="funnelContainer">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+      
+      <!-- Funnel Stage Diagnostics Callouts -->
+      <div class="funnel-diagnostics-grid">
+        <div class="diagnostic-box danger">
+          <div class="diag-header">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <h4>Primary Pipeline Leak: Visitor → Lead</h4>
+          </div>
+          <p><strong>93.13% drop-off</strong> (60,534 visitors lost). Mobile experience and lengthy signup forms on B2B category search drive significant bounce.</p>
+          <div class="diag-metric">Opportunity: A +1.5% CRO lift recovers <strong>975 additional leads</strong>.</div>
+        </div>
+
+        <div class="diagnostic-box warning">
+          <div class="diag-header">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <h4>Secondary Sales Bottleneck: Opportunity → Customer</h4>
+          </div>
+          <p><strong>63.81% drop-off</strong> (640 proposals lost). Long decision cycles (avg 37 days) and late-stage pricing friction stall closed-won deals.</p>
+          <div class="diag-metric">Opportunity: +10% closing win-rate adds <strong>$725k+ new ARR</strong>.</div>
+        </div>
+
+        <div class="diagnostic-box success">
+          <div class="diag-header">
+            <i class="fa-solid fa-circle-check"></i>
+            <h4>Strongest Qualification Gate: SQL → Opportunity</h4>
+          </div>
+          <p><strong>68.89% conversion</strong> (1,003 opportunities created). Sales Discovery calls are highly effective once an MQL is accepted.</p>
+          <div class="diag-metric">Strengthen SDR capacity to capitalize on high-intent inbound inquiries.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Deep-Dive Analytics Grid: Charts & Matrices -->
+    <section class="charts-grid">
+      <!-- Chart 1: Channel Lead Quality Matrix -->
+      <div class="chart-card glass-card">
+        <div class="card-header">
+          <div>
+            <h3><i class="fa-solid fa-network-wired"></i> Channel Attribution & Lead Quality</h3>
+            <p class="card-sub">Lead Volume vs. Lead-to-Customer Conversion % (Bubble size = ARR)</p>
+          </div>
+          <span class="badge-info">Multi-Touch</span>
+        </div>
+        <div class="chart-body">
+          <canvas id="channelQualityChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 2: Drop-off Rate by Funnel Transition -->
+      <div class="chart-card glass-card">
+        <div class="card-header">
+          <div>
+            <h3><i class="fa-solid fa-chart-simple"></i> Drop-Off Rate by Stage Transition</h3>
+            <p class="card-sub">Friction percentage at each customer milestone</p>
+          </div>
+          <span class="badge-info">Bottleneck Diagnostics</span>
+        </div>
+        <div class="chart-body">
+          <canvas id="stageDropoffChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 3: Monthly Conversion & Revenue Trend -->
+      <div class="chart-card glass-card">
+        <div class="card-header">
+          <div>
+            <h3><i class="fa-solid fa-chart-line"></i> Pipeline Growth & Conversion Velocity</h3>
+            <p class="card-sub">Monthly closed ARR vs. marketing expenditure</p>
+          </div>
+          <span class="badge-info">Q1-Q3 2026</span>
+        </div>
+        <div class="chart-body">
+          <canvas id="monthlyTrendChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 4: Device & Platform Conversion Performance -->
+      <div class="chart-card glass-card">
+        <div class="card-header">
+          <div>
+            <h3><i class="fa-solid fa-mobile-screen-button"></i> Device Platform Conversion Disparity</h3>
+            <p class="card-sub">Desktop vs. Mobile conversion yield and bounce rates</p>
+          </div>
+          <span class="badge-info">UX Audit</span>
+        </div>
+        <div class="chart-body">
+          <canvas id="deviceChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Channel Performance Scorecard Table -->
+    <section class="table-section glass-card">
+      <div class="section-header">
+        <div>
+          <h2><i class="fa-solid fa-table-list"></i> Acquisition Channel Scorecard & Unit Economics</h2>
+          <p class="section-desc">Comprehensive breakdown of spend, volume, downstream conversion, CAC, and ROAS across channels.</p>
+        </div>
+        <div class="table-search">
+          <input type="text" id="channelSearchInput" placeholder="Filter channels..." class="table-input">
+        </div>
+      </div>
+      
+      <div class="table-wrapper">
+        <table class="data-table" id="channelTable">
+          <thead>
+            <tr>
+              <th data-sort="channel">Marketing Channel <i class="fa-solid fa-sort"></i></th>
+              <th data-sort="Visitors">Visitors <i class="fa-solid fa-sort"></i></th>
+              <th data-sort="Leads">Leads <i class="fa-solid fa-sort"></i></th>
+              <th data-sort="Customers">Customers <i class="fa-solid fa-sort"></i></th>
+              <th data-sort="Traffic_to_Lead_%">Visitor → Lead % <i class="fa-solid fa-sort"></i></th>
+              <th data-sort="Lead_to_Customer_%">Lead → Cust % <i class="fa-solid fa-sort"></i></th>
+              <th data-sort="CAC_USD">CAC ($) <i class="fa-solid fa-sort"></i></th>
+              <th data-sort="ROAS">ROAS <i class="fa-solid fa-sort"></i></th>
+              <th data-sort="Revenue_USD">Closed ARR ($) <i class="fa-solid fa-sort"></i></th>
+              <th>Channel Rating</th>
+            </tr>
+          </thead>
+          <tbody id="channelTableBody">
+            <!-- Populated dynamically by app.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Interactive "What-If" Revenue Optimization Simulator -->
+    <section class="simulator-section glass-card">
+      <div class="simulator-header">
+        <div class="sim-title">
+          <div class="sim-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> EXECUTIVE REVENUE SIMULATOR</div>
+          <h2>"What-If" Conversion Rate Sensitivity & Growth Engine</h2>
+          <p class="sim-desc">Simulate how resolving funnel bottlenecks and lifting stage conversion rates impacts downstream pipeline revenue and ROI.</p>
+        </div>
+        <div class="sim-reset">
+          <button id="resetSimBtn" class="btn-secondary"><i class="fa-solid fa-arrow-rotate-left"></i> Reset Baseline</button>
+        </div>
+      </div>
+
+      <div class="simulator-grid">
+        <!-- Sliders Column -->
+        <div class="simulator-controls">
+          <!-- Control 1: Visitor to Lead -->
+          <div class="control-card">
+            <div class="control-header">
+              <label for="sliderVtoL"><strong>1. Top of Funnel: Landing Page CRO</strong> (Visitor → Lead)</label>
+              <span class="slider-display" id="dispVtoL">+0%</span>
+            </div>
+            <input type="range" id="sliderVtoL" min="0" max="50" step="1" value="0" class="range-slider">
+            <div class="slider-meta">
+              <span>Current: 6.87%</span>
+              <span id="projVtoL">Simulated: 6.87%</span>
+            </div>
+            <p class="control-hint">Achieved via mobile form optimization and targeted B2B landing pages.</p>
+          </div>
+
+          <!-- Control 2: Lead to MQL -->
+          <div class="control-card">
+            <div class="control-header">
+              <label for="sliderLtoMQL"><strong>2. Middle of Funnel: Lead Qualification</strong> (Lead → MQL)</label>
+              <span class="slider-display" id="dispLtoMQL">+0%</span>
+            </div>
+            <input type="range" id="sliderLtoMQL" min="0" max="40" step="1" value="0" class="range-slider">
+            <div class="slider-meta">
+              <span>Current: 55.08%</span>
+              <span id="projLtoMQL">Simulated: 55.08%</span>
+            </div>
+            <p class="control-hint">Achieved via automated email nurture sequences and automated enrichment.</p>
+          </div>
+
+          <!-- Control 3: Opportunity to Customer -->
+          <div class="control-card">
+            <div class="control-header">
+              <label for="sliderOppToCust"><strong>3. Bottom of Funnel: Opportunity Win Rate</strong> (Opp → Customer)</label>
+              <span class="slider-display" id="dispOppToCust">+0%</span>
+            </div>
+            <input type="range" id="sliderOppToCust" min="0" max="40" step="1" value="0" class="range-slider">
+            <div class="slider-meta">
+              <span>Current: 36.19%</span>
+              <span id="projOppToCust">Simulated: 36.19%</span>
+            </div>
+            <p class="control-hint">Achieved via sales deal desks, tailored pilot pricing, and security accelerators.</p>
+          </div>
+        </div>
+
+        <!-- Simulated Outcome Card -->
+        <div class="simulator-output">
+          <div class="sim-output-card">
+            <span class="sim-out-label">Projected Incremental Pipeline Revenue</span>
+            <div class="sim-out-value" id="simAddedRevenue">+$0</div>
+            
+            <div class="sim-metric-rows">
+              <div class="sim-row">
+                <span>Baseline ARR:</span>
+                <strong>$6,978,674</strong>
+              </div>
+              <div class="sim-row highlight">
+                <span>New Simulated ARR:</span>
+                <strong id="simTotalRevenue">$6,978,674</strong>
+              </div>
+              <div class="sim-row">
+                <span>Baseline Customers:</span>
+                <strong>363 Deals</strong>
+              </div>
+              <div class="sim-row highlight">
+                <span>New Simulated Customers:</span>
+                <strong id="simTotalCust">363 Deals</strong>
+              </div>
+              <div class="sim-row">
+                <span>Net Incremental Customers:</span>
+                <span class="badge-lift" id="simAddedCust">+0 Deals</span>
+              </div>
+              <div class="sim-row">
+                <span>New Projected ROAS:</span>
+                <strong id="simNewROAS">38.27x</strong>
+              </div>
+            </div>
+
+            <div class="sim-summary-box">
+              <i class="fa-solid fa-chart-line"></i>
+              <p id="simSummaryText">Move the sliders above to model compound conversion lift across funnel stages.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Strategic Playbook & Actionable Recommendations -->
+    <section class="recommendations-section glass-card">
+      <div class="section-header">
+        <div>
+          <h2><i class="fa-solid fa-lightbulb"></i> Actionable Growth Recommendations & Roadmap</h2>
+          <p class="section-desc">Consulting-grade strategies prioritized by revenue impact and implementation feasibility.</p>
+        </div>
+      </div>
+
+      <div class="recommendations-grid">
+        <!-- Rec 1: Scale High ROAS Channels -->
+        <div class="rec-card">
+          <div class="rec-top">
+            <span class="tag-priority high">HIGH IMPACT</span>
+            <span class="tag-stage">Channel Allocation</span>
+          </div>
+          <h3>1. Triple Down on Referral & Partner Alliances</h3>
+          <p>Referral brings the highest conversion quality (<strong>20.48% Lead-to-Customer</strong>, <strong>$49.59 CAC</strong>, and <strong>416x ROAS</strong>). Currently accounting for only 8% of total traffic.</p>
+          <ul class="rec-list">
+            <li>Launch dedicated co-marketing webinars with integration partners.</li>
+            <li>Introduce a 20% recurring affiliate/partner commission structure.</li>
+            <li><strong>Projected Revenue Lift:</strong> +$1.2M ARR in 2 quarters.</li>
+          </ul>
+        </div>
+
+        <!-- Rec 2: Mobile UX & Form Friction -->
+        <div class="rec-card">
+          <div class="rec-top">
+            <span class="tag-priority high">HIGH IMPACT</span>
+            <span class="tag-stage">Top of Funnel</span>
+          </div>
+          <h3>2. Overhaul Mobile Landing Page UX</h3>
+          <p>Mobile conversion lags desktop by <strong>55%</strong> (0.331% vs. 0.742%) due to cumbersome 7-field forms and desktop-centric layouts.</p>
+          <ul class="rec-list">
+            <li>Implement 1-tap Google/LinkedIn OAuth registration.</li>
+            <li>Compress landing page assets to bring LCP load time under 1.2s.</li>
+            <li>Deploy contextual exit-intent micro-surveys for mobile visitors.</li>
+          </ul>
+        </div>
+
+        <!-- Rec 3: Reallocate Underperforming Spend -->
+        <div class="rec-card">
+          <div class="rec-top">
+            <span class="tag-priority medium">EFFICIENCY</span>
+            <span class="tag-stage">Paid Advertising</span>
+          </div>
+          <h3>3. Prune Social & Restructure Google Search Ads</h3>
+          <p>Paid Search exhibits a steep <strong>$2,058 CAC</strong>, while Social Ads convert at an unviable <strong>1.10% with a $6,101 CAC</strong>.</p>
+          <ul class="rec-list">
+            <li>Reallocate 50% of the Meta/X social budget directly into high-performing LinkedIn ABM campaigns.</li>
+            <li>Refocus Google Ads exclusively on exact-match high-intent competitor displacement keywords.</li>
+            <li>Cut wasted ad spend by an estimated $42,000 annually.</li>
+          </ul>
+        </div>
+
+        <!-- Rec 4: Opportunity Acceleration -->
+        <div class="rec-card">
+          <div class="rec-top">
+            <span class="tag-priority high">HIGH IMPACT</span>
+            <span class="tag-stage">Bottom of Funnel</span>
+          </div>
+          <h3>4. Accelerated Deal Desk & Mutual Action Plans</h3>
+          <p>640 qualified opportunities drop off at the proposal stage (63.8% loss), causing <strong>$12.3M in unrealized ARR leakage</strong>.</p>
+          <ul class="rec-list">
+            <li>Provide sales reps with interactive customer ROI calculators during demos.</li>
+            <li>Establish standardized 48-hour legal/security approval packs to compress sales cycles from 37 days down to 24 days.</li>
+            <li>Implement automated pipeline stall triggers in CRM.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div class="footer-left">
+        <p><strong>Marketing Funnel & Conversion Performance Analysis</strong> • Task 3 (2026)</p>
+        <p class="footer-sub">Future Interns Data Science & Growth Analytics Track</p>
+      </div>
+      <div class="footer-right">
+        <span>Engineered with HTML5, CSS3, Vanilla JavaScript, Chart.js & Python Analytics</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
